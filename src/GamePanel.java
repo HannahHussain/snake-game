@@ -66,8 +66,22 @@ public class GamePanel extends JPanel implements ActionListener {
             g.drawLine(i*UNIT_SIZE, 0, i*UNIT_SIZE, SCREEN_HEIGHT);  // lines drawn on x axis
             g.drawLine(0, i*UNIT_SIZE, SCREEN_HEIGHT, i* UNIT_SIZE);  // lines drawn on y axis
         }
+
+        // drawing an apple
         g.setColor(Color.RED);
         g.fillOval(appleX, appleY, UNIT_SIZE, UNIT_SIZE);
+
+        // drawing the snake
+        for (int i = 0; i < bodyParts; i++) {
+            if (i == 0) {  // head of the snake
+                g.setColor(Color.GREEN);
+                g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
+            }
+            else {  // body of the snake
+                g.setColor(new Color(45,180,0));
+                g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
+            }
+        }
 
     }
 
@@ -75,12 +89,30 @@ public class GamePanel extends JPanel implements ActionListener {
         // generate the coords of a new apple - every time game starts or an apple is eaten
         appleX = random.nextInt((int)(SCREEN_WIDTH/UNIT_SIZE)) * UNIT_SIZE;
         appleY = random.nextInt((int)(SCREEN_HEIGHT/UNIT_SIZE)) * UNIT_SIZE;
-
-
     }
 
     public void move() {
+        // method to move the snake
+        for (int i=bodyParts; i>0; i--)  {  // iterate through all body parts of snake
+            x[i] = x[i-1];  // shifting all coordinates in array by 1
+            y[i] = y[i-1];
 
+        }
+
+        switch(direction) {
+            case 'U':  // Up
+                y[0] = y[0] - UNIT_SIZE;
+                break;
+            case 'D': // Down
+                y[0] = y[0] + UNIT_SIZE;
+                break;
+            case 'L': // Left
+                x[0] = x[0] - UNIT_SIZE;
+                break;
+            case 'R': // Right
+                x[0] = x[0] + UNIT_SIZE;
+                break;
+        } 
     }
 
     public void checkApple() {
@@ -89,6 +121,34 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
     public void checkCollisions() {
+        // check if head of snake collides with its body
+        for (int i = bodyParts; i > 0; i--) {
+            if ((x[0] == x[i]) && (y[0] == y[i])) {
+                // head collided with body
+                running = false;  // game over
+            }
+        }
+
+        // check if snake collided with any border
+        if (x[0] < 0) {  // left border
+            running = false;
+        }
+
+        if (x[0] > SCREEN_WIDTH) {  // right border
+            running = false;
+        }
+
+        if (y[0] < 0) { // top border
+            running = false;
+        }
+
+        if (y[0] > SCREEN_HEIGHT) {  // bottom border
+            running = false;
+        }
+
+        if (!running) {
+            timer.stop();
+        }
 
     }
 
@@ -98,14 +158,42 @@ public class GamePanel extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        // TODO Auto-generated method stub
-        
+        if (running) {
+            move();
+            checkApple();
+            checkCollisions();
+        }   
+        repaint();    
     }
 
     public class myKeyAdapter extends KeyAdapter {
         @Override
         public void keyPressed(KeyEvent e) {
+            switch(e.getKeyCode()) {
+                case KeyEvent.VK_LEFT:  // left arrow
+                    if (direction != 'R') {  // limit user to 90 degree turns
+                        direction = 'L';
+                        break;
+                    }
 
+                case KeyEvent.VK_RIGHT:  // right arrow
+                if (direction != 'L') {  // limit user to 90 degree turns
+                    direction = 'R';
+                    break;
+                }
+
+                case KeyEvent.VK_UP:  // up arrow
+                    if (direction != 'D') {  // limit user to 90 degree turns
+                        direction = 'U';
+                        break;
+                    }
+                
+                case KeyEvent.VK_DOWN:  // down arrow
+                if (direction != 'U') {  // limit user to 90 degree turns
+                    direction = 'D';
+                    break;
+                }
+            }
         }
     }
 
