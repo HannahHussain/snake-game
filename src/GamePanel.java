@@ -5,6 +5,8 @@ import javax.swing.Timer;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -60,28 +62,28 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
     public void draw(Graphics g) {
+        if (running) {
+            
+            // drawing an apple
+            g.setColor(Color.RED);
+            g.fillOval(appleX, appleY, UNIT_SIZE, UNIT_SIZE);
 
-        // drawing a grid:
-        for (int i = 0; i < SCREEN_HEIGHT/UNIT_SIZE; i++) {
-            g.drawLine(i*UNIT_SIZE, 0, i*UNIT_SIZE, SCREEN_HEIGHT);  // lines drawn on x axis
-            g.drawLine(0, i*UNIT_SIZE, SCREEN_HEIGHT, i* UNIT_SIZE);  // lines drawn on y axis
-        }
-
-        // drawing an apple
-        g.setColor(Color.RED);
-        g.fillOval(appleX, appleY, UNIT_SIZE, UNIT_SIZE);
-
-        // drawing the snake
-        for (int i = 0; i < bodyParts; i++) {
-            if (i == 0) {  // head of the snake
-                g.setColor(Color.GREEN);
-                g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
-            }
-            else {  // body of the snake
-                g.setColor(new Color(45,180,0));
-                g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
+            // drawing the snake
+            for (int i = 0; i < bodyParts; i++) {
+                if (i == 0) {  // head of the snake
+                    g.setColor(new Color(27, 126, 60));
+                    g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
+                }
+                else {  // body of the snake
+                    g.setColor(new Color(4, 149, 52));
+                    g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
+                }
             }
         }
+        else {
+            gameOver(g);
+        }
+        
 
     }
 
@@ -116,7 +118,12 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
     public void checkApple() {
+        if ((x[0] == appleX) && (y[0] == appleY)) {
+            bodyParts++;
+            applesEaten++; // score
+            newApple();  // generate new apple
 
+        }
 
     }
 
@@ -153,7 +160,15 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
     public void gameOver(Graphics g) {
-
+        // game over text
+        g.setColor(Color.RED);
+        g.setFont(new Font("Verdana", Font.BOLD, 75));
+        // aliging text in centre of screen
+        FontMetrics metrics = getFontMetrics(g.getFont());
+        String msg = "GAME OVER!";
+        int x = (SCREEN_WIDTH - metrics.stringWidth(msg))/2;
+        int y = SCREEN_HEIGHT/2;
+        g.drawString(msg, x, y);
     }
 
     @Override
